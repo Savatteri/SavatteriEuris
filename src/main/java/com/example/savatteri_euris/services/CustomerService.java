@@ -1,5 +1,7 @@
 package com.example.savatteri_euris.services;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +16,14 @@ public class CustomerService {
 	
 	public void save(Customer customer) {
 		customerRepo.save(customer);
+	}
+	
+	public List<Customer> findAll(){
+		return customerRepo.findAll();
+	}
+	
+	public Customer findOneById(Long id) {
+		return customerRepo.findOneById(id);
 	}
 
 }

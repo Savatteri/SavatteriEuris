@@ -11,8 +11,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.savatteri_euris.models.dtos.OrderDto;
 import com.example.savatteri_euris.models.facts.Customer;
 import com.example.savatteri_euris.services.CustomerService;
+import com.example.savatteri_euris.services.OrdersService;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -20,32 +22,32 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @Getter
 @Slf4j
-@RequestMapping(CustomerController.ROOT_PATH)
-public class CustomerController {
+@RequestMapping(OrdersController.ROOT_PATH)
+public class OrdersController {
 	
-	public static final String ROOT_PATH = "/customer";
+	public static final String ROOT_PATH = "/orders";
 	
 	@Autowired
-	private CustomerService customerService;
+	private OrdersService ordersService;
 
 	@PostMapping("/insert")
 	public ResponseEntity<String> insert(
-			@RequestBody Customer customer) {
+			@RequestBody OrderDto orderDto) {
 		
-		log.info("insert operation, customer={}", customer);
+		log.info("insert operation, order={}", orderDto);
 		
-		getCustomerService().save(customer);
+		getOrdersService().saveByDto(orderDto);
 		
 		return ResponseEntity.ok("insert complete");
 		
 	}
 	
 	@GetMapping("/findAll")
-    public ResponseEntity<List<Customer>> findAll() {
+    public ResponseEntity<List<OrderDto>> findAll() {
         
-        List<Customer> customerList = getCustomerService().findAll(); 
+        List<OrderDto> orderDtos = getOrdersService().findAll(); 
         
-        return ResponseEntity.ok(customerList);
+        return ResponseEntity.ok(orderDtos);
     }
 	
 }

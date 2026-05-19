@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.savatteri_euris.models.facts.Customer;
+import com.example.savatteri_euris.models.facts.Product;
 import com.example.savatteri_euris.services.CustomerService;
+import com.example.savatteri_euris.services.ProductService;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -20,32 +22,32 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @Getter
 @Slf4j
-@RequestMapping(CustomerController.ROOT_PATH)
-public class CustomerController {
+@RequestMapping(ProductController.ROOT_PATH)
+public class ProductController {
 	
-	public static final String ROOT_PATH = "/customer";
+	public static final String ROOT_PATH = "/product";
 	
 	@Autowired
-	private CustomerService customerService;
+	private ProductService productService;
 
 	@PostMapping("/insert")
 	public ResponseEntity<String> insert(
-			@RequestBody Customer customer) {
+			@RequestBody Product product) {
 		
-		log.info("insert operation, customer={}", customer);
+		log.info("insert operation, customer={}", product);
 		
-		getCustomerService().save(customer);
+		getProductService().save(product);
 		
 		return ResponseEntity.ok("insert complete");
 		
 	}
 	
 	@GetMapping("/findAll")
-    public ResponseEntity<List<Customer>> findAll() {
+    public ResponseEntity<List<Product>> findAll() {
         
-        List<Customer> customerList = getCustomerService().findAll(); 
+        List<Product> productList = getProductService().findAll(); 
         
-        return ResponseEntity.ok(customerList);
+        return ResponseEntity.ok(productList);
     }
 	
 }
