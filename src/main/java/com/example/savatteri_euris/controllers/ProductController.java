@@ -11,8 +11,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.savatteri_euris.models.aggs.AggProduct;
 import com.example.savatteri_euris.models.facts.Customer;
 import com.example.savatteri_euris.models.facts.Product;
+import com.example.savatteri_euris.services.AggProductService;
 import com.example.savatteri_euris.services.CustomerService;
 import com.example.savatteri_euris.services.ProductService;
 
@@ -29,14 +31,24 @@ public class ProductController {
 	
 	@Autowired
 	private ProductService productService;
+	@Autowired
+	private AggProductService aggProductService;
 
 	@PostMapping("/insert")
 	public ResponseEntity<String> insert(
 			@RequestBody Product product) {
 		
-		log.info("insert operation, customer={}", product);
+		log.info("insert operation, product={}", product);
+		
+		if(!getProductService().isValid(product)) {
+			return ResponseEntity
+					.badRequest()
+					.body("invalid product");
+		}
 		
 		getProductService().save(product);
+		
+		saveAggProduct(product);
 		
 		return ResponseEntity.ok("insert complete");
 		
@@ -50,4 +62,11 @@ public class ProductController {
         return ResponseEntity.ok(productList);
     }
 	
+	private void saveAggProduct(Product product) {
+		AggProduct aggProduct = new AggProduct();
+		aggProduct.setCode(product.getCode());
+		aggProduct.setName(product.getName());
+		aggProduct.setStock(product.getBaseStock());
+		getAggProductService().save(aggProduct);
+	}
 }

@@ -41,6 +41,7 @@ public class OrdersService {
 		
 		orders.setCustomer(customer);
 		orders.setInsertDate(new Date());
+		orders.setStatus(customerId);
 		
 		List<OrderProduct> orderProducts = new ArrayList<>();
 		orderDto.getProducts().forEach(productMap -> {
@@ -53,7 +54,7 @@ public class OrdersService {
 		        
 		        OrderProduct orderProduct = new OrderProduct();
 		        orderProduct.setQuantity(quantity);
-		        Product product =getProductService().findOneById(productId);
+		        Product product = getProductService().findOneById(productId);
 		        orderProduct.setProduct(product);
 		        orderProduct.setOrders(orders);
 		        orderProducts.add(orderProduct);

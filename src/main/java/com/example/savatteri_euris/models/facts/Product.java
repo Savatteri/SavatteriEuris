@@ -29,5 +29,6 @@ public class Product {
 	private String name;
 	private Integer baseStock;
 	
+	public Product() {}
 	
 }
