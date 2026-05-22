@@ -60,6 +60,7 @@ public class OrdersController {
 		List<OrderDto> orderDtos = getOrdersService().findAll();
 
 		return ResponseEntity.ok(orderDtos);
+		
 	}
 
 }

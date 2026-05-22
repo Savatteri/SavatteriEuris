@@ -29,5 +29,4 @@ public class AggProduct {
 	private String name;
 	private Integer stock;
 	
-	
 }

@@ -64,7 +64,6 @@ public class ProductControllerTest {
                 .content(productJson))
                 .andExpect(status().isOk())
                 .andExpect(content().string("insert complete"));
-
         
     }
     
@@ -81,5 +80,6 @@ public class ProductControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(productJson))
                 .andExpect(status().isBadRequest());
+        
     }
 }
