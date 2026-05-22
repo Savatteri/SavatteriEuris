@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.savatteri_euris.models.dtos.CustomerDto;
 import com.example.savatteri_euris.models.facts.Customer;
 import com.example.savatteri_euris.services.CustomerService;
 
@@ -30,9 +31,11 @@ public class CustomerController {
 
 	@PostMapping("/insert")
 	public ResponseEntity<String> insert(
-			@RequestBody Customer customer) {
+			@RequestBody CustomerDto customerDto) {
 		
-		log.info("insert operation, customer={}", customer);
+		log.info("insert operation, customer={}", customerDto);
+		
+		Customer customer = fromDtoToCustomer(customerDto);
 		
 		getCustomerService().save(customer);
 		
@@ -47,5 +50,15 @@ public class CustomerController {
         
         return ResponseEntity.ok(customerList);
     }
+	
+	private Customer fromDtoToCustomer(CustomerDto customerDto) {
+		Customer customer = new Customer();
+		customer.setBirthDate(customerDto.getBirthDate());
+		customer.setCodiceFiscale(customer.getCodiceFiscale());
+		customer.setEmail(customer.getEmail());
+		customer.setFamilyName(customer.getFamilyName());
+		customer.setName(customer.getName());
+		return customer;
+	}
 	
 }

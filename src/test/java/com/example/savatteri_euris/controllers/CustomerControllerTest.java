@@ -8,6 +8,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.example.savatteri_euris.models.dtos.CustomerDto;
 import com.example.savatteri_euris.models.facts.Customer;
 import com.example.savatteri_euris.services.CustomerService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -41,7 +42,7 @@ public class CustomerControllerTest {
     @Test
     void shouldInsertCustomerWhenValid() throws Exception {
 
-    	Customer customer = new Customer();
+    	CustomerDto customer = new CustomerDto();
         customer.setName("Giuseppe Savatteri");
         customer.setCodiceFiscale("SVTGPP90R28H456M");
 

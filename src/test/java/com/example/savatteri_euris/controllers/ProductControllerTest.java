@@ -11,6 +11,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.example.savatteri_euris.models.dtos.ProductDto;
 import com.example.savatteri_euris.models.facts.Customer;
 import com.example.savatteri_euris.models.facts.Product;
 import com.example.savatteri_euris.services.CustomerService;
@@ -52,7 +53,7 @@ public class ProductControllerTest {
     @Test
     void shoundInsertWhenProductValid() throws Exception {
 
-    	Product product = new Product();
+    	ProductDto product = new ProductDto();
     	product.setBaseStock(10);
     	product.setName("dentifricio");
 
@@ -70,7 +71,7 @@ public class ProductControllerTest {
     @Test
     void shoundInsertWhenProductInvalid() throws Exception {
 
-    	Product product = new Product();
+    	ProductDto product = new ProductDto();
     	product.setBaseStock(null);
     	product.setName("dentifricio");
 

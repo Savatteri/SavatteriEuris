@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.savatteri_euris.models.aggs.AggProduct;
+import com.example.savatteri_euris.models.dtos.ProductDto;
 import com.example.savatteri_euris.models.facts.Customer;
 import com.example.savatteri_euris.models.facts.Product;
 import com.example.savatteri_euris.services.AggProductService;
@@ -36,9 +37,11 @@ public class ProductController {
 
 	@PostMapping("/insert")
 	public ResponseEntity<String> insert(
-			@RequestBody Product product) {
+			@RequestBody ProductDto productDto) {
 		
-		log.info("insert operation, product={}", product);
+		log.info("insert operation, product={}", productDto);
+		
+		Product product = fromDtoToProduct(productDto);
 		
 		if(!getProductService().isValid(product)) {
 			return ResponseEntity
@@ -68,5 +71,13 @@ public class ProductController {
 		aggProduct.setName(product.getName());
 		aggProduct.setStock(product.getBaseStock());
 		getAggProductService().save(aggProduct);
+	}
+	
+	private Product fromDtoToProduct(ProductDto productDto) {
+		Product product = new Product();
+		product.setBaseStock(productDto.getBaseStock());
+		product.setCode(productDto.getCode());
+		product.setName(productDto.getName());
+		return product;
 	}
 }
