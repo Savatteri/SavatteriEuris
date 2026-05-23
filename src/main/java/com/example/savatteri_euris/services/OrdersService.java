@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.savatteri_euris.exceptions.StockException;
+import com.example.savatteri_euris.models.aggs.AggOrders;
 import com.example.savatteri_euris.models.aggs.AggProduct;
 import com.example.savatteri_euris.models.dtos.OrderDto;
 import com.example.savatteri_euris.models.events.OrderProduct;
@@ -46,26 +47,27 @@ public class OrdersService {
 	@Autowired
 	AggProductService aggProductService;
 	@Autowired
+	AggOrdersService aggOrdersService;
+	@Autowired
 	QueueProductModifiedService queueProductModifiedService;
 	@Autowired
 	QueueOrdersModifiedService queueOrdersModifiedService;
-	
 
 	public void save(Orders orders) {
 		ordersRepo.save(orders);
-	}	
-	
-	public Orders findFirstByEventCodeAndStatus(String eventCode, String status) {
-		return ordersRepo.findFirstByEventCodeAndStatus(eventCode, status);	
 	}
-	
-	public List<Orders> findByEventCode(String eventCode){
+
+	public Orders findFirstByEventCodeAndStatus(String eventCode, String status) {
+		return ordersRepo.findFirstByEventCodeAndStatus(eventCode, status);
+	}
+
+	public List<Orders> findByEventCode(String eventCode) {
 		return ordersRepo.findByEventCode(eventCode);
 	}
-	
+
 	@Transactional
 	public void saveByDto(OrderDto orderDto) {
-		
+
 		String customerId = orderDto.getCustomerId();
 
 		Customer customer = getCustomerService().findOneById(Long.valueOf(customerId));
@@ -96,23 +98,22 @@ public class OrdersService {
 		orders.setOrderProducts(orderProducts);
 		String eventCode = generateEventCode(orders);
 		log.info("eventCode={} generated", eventCode);
-		orders.setEventCode(eventCode);		
+		orders.setEventCode(eventCode);
 		ordersRepo.save(orders);
-		
+
 		insertEventCodeToProductQueue(eventCode);
 		insertEventCodeToOrdersQueue(eventCode);
 
-		
 	}
 
 	private void insertEventCodeToOrdersQueue(String eventCode) {
-		
+
 		QueueOrdersModified queueOrdersModified = new QueueOrdersModified();
 		queueOrdersModified.setEventCode(eventCode);
 		queueOrdersModified.setInsertDate(new Date());
 		queueOrdersModified.setLock(false);
-		
-		getQueueOrdersModifiedService().save(queueOrdersModified);		
+
+		getQueueOrdersModifiedService().save(queueOrdersModified);
 	}
 
 	private void insertEventCodeToProductQueue(String eventCode) {
@@ -121,13 +122,13 @@ public class OrdersService {
 		queueProductModified.setEventCode(eventCode);
 		queueProductModified.setInsertDate(new Date());
 		queueProductModified.setLock(false);
-		
+
 		getQueueProductModifiedService().save(queueProductModified);
-		
+
 	}
 
 	public List<OrderDto> findAll() {
-		
+
 		List<Orders> orders = ordersRepo.findAll();
 		List<OrderDto> orderDtos = new ArrayList<>();
 
@@ -179,31 +180,79 @@ public class OrdersService {
 	}
 
 	private String generateEventCode(Orders orders) {
-		
+
 		StringBuilder sb = new StringBuilder();
-		
+
 		appendDateToSb(orders.getInsertDate(), sb);
 		sb.append(orders.getCustomer().getName());
-		
+
 		List<OrderProduct> orderProducts = orders.getOrderProducts();
 		orderProducts.forEach(orderProduct -> {
-			
+
 			Product product = orderProduct.getProduct();
 			sb.append(product.getId());
-			
+
 		});
 		return sb.toString();
-	
+
 	}
 
 	private void appendDateToSb(Date date, StringBuilder sb) {
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMddHHmmss");
-		LocalDateTime localDateTime = date.toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalDateTime();
+		LocalDateTime localDateTime = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 		sb.append(localDateTime.format(formatter));
 	}
-	
 
+	public void setStatusDelivered(String eventCode, long productId) {
+
+		AggOrders aggOrders = getAggOrdersService().findOneByEventCodeAndProductId(eventCode, productId);
+		if (aggOrders != null) {
+			updateStatus(aggOrders, eventCode, productId, OrderUtil.STATUS_DELIVERED);
+		}
+
+	}
+
+	public boolean setStatusDeleted(String eventCode, long productId) {
+		
+		AggOrders aggOrders = getAggOrdersService().findOneByEventCodeAndProductId(eventCode, productId);
+
+		if (aggOrders != null) {
+
+			if (StringUtils.compareIgnoreCase(aggOrders.getStatus(), OrderUtil.STATUS_DELIVERED) == 0)
+				return false;
+			else {
+				updateStatus(aggOrders, eventCode, productId, OrderUtil.STATUS_DELETED);
+				return true;
+			}
+		}
+		return false;
+		
+	}
+
+	private void updateStatus(AggOrders aggOrders, String eventCode, long productId, String status) {
+
+		Orders orders = new Orders();
+		Customer customer = getCustomerService().findOneById(aggOrders.getCustomerId());
+
+		orders.setCustomer(customer);
+		orders.setInsertDate(new Date());
+		orders.setStatus(status);
+
+		List<OrderProduct> orderProducts = new ArrayList<>();
+		OrderProduct orderProduct = new OrderProduct();
+		orderProduct.setQuantity(aggOrders.getQuantity());
+		Product product = getProductService().findOneById(productId);
+		orderProduct.setProduct(product);
+		orderProduct.setOrders(orders);
+		orderProducts.add(orderProduct);
+
+		orders.setOrderProducts(orderProducts);
+		log.info("eventCode={} generated", eventCode);
+		orders.setEventCode(eventCode);
+		ordersRepo.save(orders);
+
+		insertEventCodeToOrdersQueue(eventCode);
+
+	}
 
 }

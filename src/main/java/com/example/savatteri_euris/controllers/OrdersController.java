@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.savatteri_euris.exceptions.StockException;
@@ -60,7 +61,30 @@ public class OrdersController {
 		List<OrderDto> orderDtos = getOrdersService().findAll();
 
 		return ResponseEntity.ok(orderDtos);
-		
+
 	}
 
+	@PostMapping("/delivered")
+	ResponseEntity<String> statusDelivered(@RequestParam(name = "eventCode", required = true) String eventCode,
+			@RequestParam(name = "productId", required = true) long productId) {
+
+		getOrdersService().setStatusDelivered(eventCode, productId);
+
+		return ResponseEntity.ok("update complete");
+
+	}
+
+	@PostMapping("/deleted")
+	ResponseEntity<String> statusDeleted(@RequestParam(name = "eventCode", required = true) String eventCode,
+			@RequestParam(name = "productId", required = true) long productId) {
+
+		if (getOrdersService().setStatusDeleted(eventCode, productId)) {
+			log.info("eventCode={}, productId={} status deleted setted", eventCode, productId);
+			return ResponseEntity.ok("update complete");
+		} else {
+			log.error("eventCode={}, productId={} impossible to update status to deleted", eventCode, productId);
+			return ResponseEntity.badRequest().body("unable to update status deleted for products delivered ");
+		}
+
+	}
 }
