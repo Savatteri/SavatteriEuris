@@ -1,11 +1,9 @@
-package com.example.savatteri_euris.models.queues;
+package com.example.savatteri_euris.models.aggs;
 
 import java.util.Date;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-
-import com.example.savatteri_euris.models.queues.base.BaseQueue;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -21,12 +19,25 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class QueueProductModified extends BaseQueue{
+public class AggOrders {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	private String eventCode;
+	private Date lastStatusDate;
+	private String status;
+    private String eventCode;
+    private Integer quantity;
+    
+    private Long customerId;
+    private String customerName;
+    private String customerFamilyName;
+    
+    private long productId;
+    private String productCode;
+    private String productName;
+    
 
+	
 }

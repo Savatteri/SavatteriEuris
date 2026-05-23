@@ -1,5 +1,6 @@
 package com.example.savatteri_euris.queue;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -12,9 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.savatteri_euris.models.aggs.AggProduct;
 import com.example.savatteri_euris.models.events.OrderProduct;
 import com.example.savatteri_euris.models.events.Orders;
+import com.example.savatteri_euris.models.queues.QueueOrdersModified;
 import com.example.savatteri_euris.models.queues.QueueProductModified;
 import com.example.savatteri_euris.services.AggProductService;
 import com.example.savatteri_euris.services.OrdersService;
+import com.example.savatteri_euris.services.QueueOrdersModifiedService;
 import com.example.savatteri_euris.services.QueueProductModifiedService;
 import com.example.savatteri_euris.utils.OrderUtil;
 
@@ -33,6 +36,9 @@ public class QueueProductModifiedConsumer {
 	@Autowired
 	QueueProductModifiedService queueProductModifiedService;
 	@Autowired
+	QueueOrdersModifiedService queueOrdersModifiedService;
+	
+	@Autowired
 	OrdersService ordersService;
 	@Autowired
 	AggProductService aggProductService;
@@ -41,6 +47,7 @@ public class QueueProductModifiedConsumer {
 	@Scheduled(cron = PARAM_CRON, zone = "Europe/Rome")
 	public void process() {
 
+		log.info("start");
 		QueueProductModified queueElement = getQueueProductModifiedService().findFirstUnlocked();
 
 		if (queueElement != null) {
@@ -55,9 +62,9 @@ public class QueueProductModifiedConsumer {
 					AggProduct aggProduct = getAggProductService().findOneByCode(productCode);
 					boolean result = getAggProductService().decreaseStock(aggProduct.getId(), quantity);
 					if (result) {
-						setProductCodeOrderedByStatus(OrderUtil.STATUS_ORDERED, orders);
+						setProductCodeOrderedByStatus(OrderUtil.STATUS_ORDERED, orders, orderProduct);
 					} else {
-						setProductCodeOrderedByStatus(OrderUtil.STATUS_REJECTED, orders);
+						setProductCodeOrderedByStatus(OrderUtil.STATUS_REJECTED, orders, orderProduct);
 					}
 				});
 				getQueueProductModifiedService().deleteQueueElement(queueElement);
@@ -67,22 +74,38 @@ public class QueueProductModifiedConsumer {
 		}
 	}
 
-	private void setProductCodeOrderedByStatus(String status, Orders orders) {
+	private void setProductCodeOrderedByStatus(String status, Orders orders, OrderProduct orderProduct) {
 
-		Orders ordersUpdate = new Orders();
-		ordersUpdate.setInsertDate(new Date());
-		ordersUpdate.setStatus(status);
-		ordersUpdate.setEventCode(orders.getEventCode());
-		ordersUpdate.setCustomer(orders.getCustomer());
-		
-		getOrdersService().save(ordersUpdate);
-		addOrdersToQueue();
+		List<OrderProduct> orderProducts = new ArrayList<>();
+	    Orders ordersUpdate = new Orders();
+	    ordersUpdate.setInsertDate(new Date());
+	    ordersUpdate.setStatus(status);
+	    ordersUpdate.setEventCode(orders.getEventCode());
+	    ordersUpdate.setCustomer(orders.getCustomer());
+	    
+	    OrderProduct newOrderProduct = new OrderProduct();
+	    newOrderProduct.setQuantity(orderProduct.getQuantity());
+	    newOrderProduct.setProduct(orderProduct.getProduct());
+	    
+	    newOrderProduct.setOrders(ordersUpdate); 
+	    
+	    orderProducts.add(newOrderProduct);
+	    log.info("orderProducts size={}", orderProducts.size());
+	    
+	    ordersUpdate.setOrderProducts(orderProducts);
+	    
+	    getOrdersService().save(ordersUpdate);
+	    addOrdersToQueue(orders.getEventCode());
 
 	}
 
-	private void addOrdersToQueue() {
-		// TODO Auto-generated method stub
+	private void addOrdersToQueue(String eventCode) {
 
+		QueueOrdersModified queueOrdersModified = new QueueOrdersModified();
+		queueOrdersModified.setEventCode(eventCode);
+		queueOrdersModified.setInsertDate(new Date());
+		queueOrdersModified.setLock(false);
+		getQueueOrdersModifiedService().save(queueOrdersModified);
 	}
 
 	private boolean tryToLock(Long id) {

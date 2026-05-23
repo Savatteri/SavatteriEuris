@@ -21,12 +21,13 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class QueueProductModified extends BaseQueue{
+public class QueueOrdersModified extends BaseQueue{
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
 	private String eventCode;
+	private long productId;
 
 }

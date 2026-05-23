@@ -20,6 +20,7 @@ import com.example.savatteri_euris.models.events.OrderProduct;
 import com.example.savatteri_euris.models.events.Orders;
 import com.example.savatteri_euris.models.facts.Customer;
 import com.example.savatteri_euris.models.facts.Product;
+import com.example.savatteri_euris.models.queues.QueueOrdersModified;
 import com.example.savatteri_euris.models.queues.QueueProductModified;
 import com.example.savatteri_euris.models.repos.CustomerRepo;
 import com.example.savatteri_euris.models.repos.OrderProductRepo;
@@ -46,11 +47,21 @@ public class OrdersService {
 	AggProductService aggProductService;
 	@Autowired
 	QueueProductModifiedService queueProductModifiedService;
+	@Autowired
+	QueueOrdersModifiedService queueOrdersModifiedService;
 	
 
 	public void save(Orders orders) {
 		ordersRepo.save(orders);
 	}	
+	
+	public Orders findFirstByEventCodeAndStatus(String eventCode, String status) {
+		return ordersRepo.findFirstByEventCodeAndStatus(eventCode, status);	
+	}
+	
+	public List<Orders> findByEventCode(String eventCode){
+		return ordersRepo.findByEventCode(eventCode);
+	}
 	
 	@Transactional
 	public void saveByDto(OrderDto orderDto) {
@@ -88,16 +99,27 @@ public class OrdersService {
 		orders.setEventCode(eventCode);		
 		ordersRepo.save(orders);
 		
-		insertEventCodeToQueue(eventCode);
+		insertEventCodeToProductQueue(eventCode);
+		insertEventCodeToOrdersQueue(eventCode);
 
 		
 	}
 
-	private void insertEventCodeToQueue(String eventCode) {
+	private void insertEventCodeToOrdersQueue(String eventCode) {
+		
+		QueueOrdersModified queueOrdersModified = new QueueOrdersModified();
+		queueOrdersModified.setEventCode(eventCode);
+		queueOrdersModified.setInsertDate(new Date());
+		queueOrdersModified.setLock(false);
+		
+		getQueueOrdersModifiedService().save(queueOrdersModified);		
+	}
+
+	private void insertEventCodeToProductQueue(String eventCode) {
 
 		QueueProductModified queueProductModified = new QueueProductModified();
 		queueProductModified.setEventCode(eventCode);
-		queueProductModified.setInsertDdate(new Date());
+		queueProductModified.setInsertDate(new Date());
 		queueProductModified.setLock(false);
 		
 		getQueueProductModifiedService().save(queueProductModified);
@@ -182,8 +204,6 @@ public class OrdersService {
 		sb.append(localDateTime.format(formatter));
 	}
 	
-	public Orders findFirstByEventCodeAndStatus(String eventCode, String status) {
-		return ordersRepo.findFirstByEventCodeAndStatus(eventCode, status);	
-	}
+
 
 }
