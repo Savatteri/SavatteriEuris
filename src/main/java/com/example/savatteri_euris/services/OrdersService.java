@@ -1,5 +1,8 @@
 package com.example.savatteri_euris.services;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -17,12 +20,14 @@ import com.example.savatteri_euris.models.events.OrderProduct;
 import com.example.savatteri_euris.models.events.Orders;
 import com.example.savatteri_euris.models.facts.Customer;
 import com.example.savatteri_euris.models.facts.Product;
+import com.example.savatteri_euris.models.queues.QueueProductModified;
 import com.example.savatteri_euris.models.repos.CustomerRepo;
 import com.example.savatteri_euris.models.repos.OrderProductRepo;
 import com.example.savatteri_euris.models.repos.OrdersRepo;
 import com.example.savatteri_euris.models.repos.ProductRepo;
 import com.example.savatteri_euris.utils.OrderUtil;
 
+import jakarta.transaction.Transactional;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -39,7 +44,15 @@ public class OrdersService {
 	ProductService productService;
 	@Autowired
 	AggProductService aggProductService;
+	@Autowired
+	QueueProductModifiedService queueProductModifiedService;
+	
 
+	public void save(Orders orders) {
+		ordersRepo.save(orders);
+	}	
+	
+	@Transactional
 	public void saveByDto(OrderDto orderDto) {
 		
 		String customerId = orderDto.getCustomerId();
@@ -70,7 +83,24 @@ public class OrdersService {
 			});
 		});
 		orders.setOrderProducts(orderProducts);
+		String eventCode = generateEventCode(orders);
+		log.info("eventCode={} generated", eventCode);
+		orders.setEventCode(eventCode);		
 		ordersRepo.save(orders);
+		
+		insertEventCodeToQueue(eventCode);
+
+		
+	}
+
+	private void insertEventCodeToQueue(String eventCode) {
+
+		QueueProductModified queueProductModified = new QueueProductModified();
+		queueProductModified.setEventCode(eventCode);
+		queueProductModified.setInsertDdate(new Date());
+		queueProductModified.setLock(false);
+		
+		getQueueProductModifiedService().save(queueProductModified);
 		
 	}
 
@@ -124,6 +154,36 @@ public class OrdersService {
 			});
 		});
 		return true;
+	}
+
+	private String generateEventCode(Orders orders) {
+		
+		StringBuilder sb = new StringBuilder();
+		
+		appendDateToSb(orders.getInsertDate(), sb);
+		sb.append(orders.getCustomer().getName());
+		
+		List<OrderProduct> orderProducts = orders.getOrderProducts();
+		orderProducts.forEach(orderProduct -> {
+			
+			Product product = orderProduct.getProduct();
+			sb.append(product.getId());
+			
+		});
+		return sb.toString();
+	
+	}
+
+	private void appendDateToSb(Date date, StringBuilder sb) {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyMMddHHmmss");
+		LocalDateTime localDateTime = date.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
+		sb.append(localDateTime.format(formatter));
+	}
+	
+	public Orders findFirstByEventCodeAndStatus(String eventCode, String status) {
+		return ordersRepo.findFirstByEventCodeAndStatus(eventCode, status);	
 	}
 
 }

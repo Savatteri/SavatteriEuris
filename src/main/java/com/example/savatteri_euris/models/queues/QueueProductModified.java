@@ -1,4 +1,4 @@
-package com.example.savatteri_euris.models.facts;
+package com.example.savatteri_euris.models.queues;
 
 import java.util.Date;
 
@@ -19,14 +19,16 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class Product {
+public class QueueProductModified {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	private String code;
-	private String name;
-	private Integer baseStock;
-		
+	private String eventCode;
+	private Date insertDdate;
+	private boolean lock;
+	
+	
+	
 }

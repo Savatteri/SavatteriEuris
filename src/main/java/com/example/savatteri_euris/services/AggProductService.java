@@ -34,5 +34,13 @@ public class AggProductService {
 	public AggProduct findOneByCode(String code) {
 		return aggProductRepo.findOneByCode(code);
 	}
+	
+	public boolean decreaseStock(Long id, int quantity) {
+		return aggProductRepo.decreaseStock(id, quantity) == 1 ? true : false;
+	}
+	
+	public boolean increaseStock(Long id, int quantity) {
+		return aggProductRepo.increaseStock(id, quantity) == 1 ? true : false;
+	}
 
 }

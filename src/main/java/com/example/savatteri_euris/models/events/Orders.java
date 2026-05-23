@@ -23,6 +23,7 @@ public class Orders {
     
     private Date insertDate;
     private String status;
+    private String eventCode;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id", nullable = false)
