@@ -51,7 +51,7 @@ public class ProductControllerTest {
     }
     
     @Test
-    void shoundInsertWhenProductValid() throws Exception {
+    private void shoundInsertWhenProductValid() throws Exception {
 
     	ProductDto product = new ProductDto();
     	product.setBaseStock(10);
@@ -68,7 +68,7 @@ public class ProductControllerTest {
     }
     
     @Test
-    void shoundInsertWhenProductInvalid() throws Exception {
+    private void shoundInsertWhenProductInvalid() throws Exception {
 
     	ProductDto product = new ProductDto();
     	product.setBaseStock(null);

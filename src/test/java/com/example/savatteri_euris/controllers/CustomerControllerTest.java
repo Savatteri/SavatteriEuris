@@ -40,7 +40,7 @@ public class CustomerControllerTest {
     private ObjectMapper objectMapper;
 
     @Test
-    void shouldInsertCustomerWhenValid() throws Exception {
+    private void shouldInsertCustomerWhenValid() throws Exception {
 
     	CustomerDto customer = new CustomerDto();
         customer.setName("Giuseppe Savatteri");

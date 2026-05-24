@@ -55,9 +55,9 @@ public class CustomerController {
 		Customer customer = new Customer();
 		customer.setBirthDate(customerDto.getBirthDate());
 		customer.setCodiceFiscale(customer.getCodiceFiscale());
-		customer.setEmail(customer.getEmail());
-		customer.setFamilyName(customer.getFamilyName());
-		customer.setName(customer.getName());
+		customer.setEmail(customerDto.getEmail());
+		customer.setFamilyName(customerDto.getFamilyName());
+		customer.setName(customerDto.getName());
 		return customer;
 	}
 	

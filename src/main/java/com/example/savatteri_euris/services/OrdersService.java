@@ -212,16 +212,19 @@ public class OrdersService {
 
 	}
 
+	@Transactional
 	public boolean setStatusDeleted(String eventCode, long productId) {
 		
 		AggOrders aggOrders = getAggOrdersService().findOneByEventCodeAndProductId(eventCode, productId);
-
+		
 		if (aggOrders != null) {
 
 			if (StringUtils.compareIgnoreCase(aggOrders.getStatus(), OrderUtil.STATUS_DELIVERED) == 0)
 				return false;
 			else {
 				updateStatus(aggOrders, eventCode, productId, OrderUtil.STATUS_DELETED);
+				AggProduct aggProduct = getAggProductService().findOneByCode(aggOrders.getProductCode());
+				getAggProductService().increaseStock(aggProduct.getId(), aggOrders.getQuantity());
 				return true;
 			}
 		}
