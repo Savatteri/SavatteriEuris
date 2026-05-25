@@ -37,7 +37,7 @@ public class QueueProductModifiedConsumer {
 	QueueProductModifiedService queueProductModifiedService;
 	@Autowired
 	QueueOrdersModifiedService queueOrdersModifiedService;
-	
+
 	@Autowired
 	OrdersService ordersService;
 	@Autowired
@@ -77,25 +77,25 @@ public class QueueProductModifiedConsumer {
 	private void setProductCodeOrderedByStatus(String status, Orders orders, OrderProduct orderProduct) {
 
 		List<OrderProduct> orderProducts = new ArrayList<>();
-	    Orders ordersUpdate = new Orders();
-	    ordersUpdate.setInsertDate(new Date());
-	    ordersUpdate.setStatus(status);
-	    ordersUpdate.setEventCode(orders.getEventCode());
-	    ordersUpdate.setCustomer(orders.getCustomer());
-	    
-	    OrderProduct newOrderProduct = new OrderProduct();
-	    newOrderProduct.setQuantity(orderProduct.getQuantity());
-	    newOrderProduct.setProduct(orderProduct.getProduct());
-	    
-	    newOrderProduct.setOrders(ordersUpdate); 
-	    
-	    orderProducts.add(newOrderProduct);
-	    log.info("orderProducts size={}", orderProducts.size());
-	    
-	    ordersUpdate.setOrderProducts(orderProducts);
-	    
-	    getOrdersService().save(ordersUpdate);
-	    addOrdersToQueue(orders.getEventCode());
+		Orders ordersUpdate = new Orders();
+		ordersUpdate.setInsertDate(new Date());
+		ordersUpdate.setStatus(status);
+		ordersUpdate.setEventCode(orders.getEventCode());
+		ordersUpdate.setCustomer(orders.getCustomer());
+
+		OrderProduct newOrderProduct = new OrderProduct();
+		newOrderProduct.setQuantity(orderProduct.getQuantity());
+		newOrderProduct.setProduct(orderProduct.getProduct());
+
+		newOrderProduct.setOrders(ordersUpdate);
+
+		orderProducts.add(newOrderProduct);
+		log.info("orderProducts size={}", orderProducts.size());
+
+		ordersUpdate.setOrderProducts(orderProducts);
+
+		getOrdersService().save(ordersUpdate);
+		addOrdersToQueue(orders.getEventCode());
 
 	}
 
@@ -108,7 +108,7 @@ public class QueueProductModifiedConsumer {
 		getQueueOrdersModifiedService().save(queueOrdersModified);
 	}
 
-	private boolean tryToLock(Long id) {
+	public boolean tryToLock(Long id) {
 		return getQueueProductModifiedService().tryToLock(id);
 	}
 }

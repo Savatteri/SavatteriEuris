@@ -10,17 +10,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.savatteri_euris.models.aggs.AggOrders;
-import com.example.savatteri_euris.models.aggs.AggProduct;
 import com.example.savatteri_euris.models.events.OrderProduct;
 import com.example.savatteri_euris.models.events.Orders;
 import com.example.savatteri_euris.models.queues.QueueOrdersModified;
-import com.example.savatteri_euris.models.queues.QueueProductModified;
 import com.example.savatteri_euris.services.AggOrdersService;
-import com.example.savatteri_euris.services.AggProductService;
 import com.example.savatteri_euris.services.OrdersService;
 import com.example.savatteri_euris.services.QueueOrdersModifiedService;
-import com.example.savatteri_euris.services.QueueProductModifiedService;
-import com.example.savatteri_euris.utils.OrderUtil;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -44,34 +39,33 @@ public class QueueOrdersModifiedConsumer {
 	@Transactional
 	@Scheduled(cron = PARAM_CRON, zone = "Europe/Rome")
 	public void process() {
-		
+
 		log.info("start");
 		QueueOrdersModified queueElement = getQueueOrdersModifiedService().findFirstUnlocked();
 
 		if (queueElement != null) {
 			if (tryToLock(queueElement.getId())) {
 				String eventCode = queueElement.getEventCode();
-				
+
 				List<Orders> orders = getOrdersService().findByEventCode(eventCode);
-				orders.forEach(order ->{
+				orders.forEach(order -> {
 					List<OrderProduct> orderProducts = order.getOrderProducts();
 					orderProducts.forEach(orderProduct -> {
-						
+
 						long productId = orderProduct.getProduct().getId();
-						
-						AggOrders aggOrders = getAggOrdersService().findOneByEventCodeAndProductId(eventCode, productId);
-						if(aggOrders == null) {
+
+						AggOrders aggOrders = getAggOrdersService().findOneByEventCodeAndProductId(eventCode,
+								productId);
+						if (aggOrders == null) {
 							initAggOrders(order, orderProduct);
-						}
-						else {
+						} else {
 							updateAggOrders(order, orderProduct, aggOrders);
 						}
-							
+
 					});
-					
+
 				});
 
-				
 				getQueueOrdersModifiedService().deleteQueueElement(queueElement);
 			} else {
 				log.warn("unable to acquire lock for id={}", queueElement.getId());
@@ -81,14 +75,11 @@ public class QueueOrdersModifiedConsumer {
 
 	private void updateAggOrders(Orders order, OrderProduct orderProduct, AggOrders aggOrders) {
 		getAggOrdersService().updateByOrders(order, orderProduct, aggOrders);
-		
 	}
 
-	private void initAggOrders( Orders order, OrderProduct orderProduct) {
+	private void initAggOrders(Orders order, OrderProduct orderProduct) {
 		getAggOrdersService().initByOrders(order, orderProduct);
-		
 	}
-	
 
 	private void setProductCodeOrderedByStatus(String status, Orders orders) {
 
@@ -97,12 +88,12 @@ public class QueueOrdersModifiedConsumer {
 		ordersUpdate.setStatus(status);
 		ordersUpdate.setEventCode(orders.getEventCode());
 		ordersUpdate.setCustomer(orders.getCustomer());
-		
+
 		getOrdersService().save(ordersUpdate);
 
 	}
 
-	private boolean tryToLock(Long id) {
+	public boolean tryToLock(Long id) {
 		return getQueueOrdersModifiedService().tryToLock(id);
 	}
 }

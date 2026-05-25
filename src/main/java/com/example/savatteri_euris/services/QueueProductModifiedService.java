@@ -1,13 +1,9 @@
 package com.example.savatteri_euris.services;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.savatteri_euris.models.facts.Customer;
 import com.example.savatteri_euris.models.queues.QueueProductModified;
-import com.example.savatteri_euris.models.repos.CustomerRepo;
 import com.example.savatteri_euris.models.repos.QueueProductModifiedRepo;
 
 @Service
@@ -28,8 +24,13 @@ public class QueueProductModifiedService {
 		int result = queueProductModifiedRepo.lockQueueItem(id);
 		return result > 0 ? true : false;
 	}
+
 	public void deleteQueueElement(QueueProductModified queueProductModified) {
 		queueProductModifiedRepo.delete(queueProductModified);
+	}
+
+	public QueueProductModified findOneByEventCode(String eventCode) {
+		return queueProductModifiedRepo.findOneByEventCode(eventCode);
 	}
 
 }

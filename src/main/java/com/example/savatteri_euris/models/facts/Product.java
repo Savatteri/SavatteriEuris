@@ -1,7 +1,5 @@
 package com.example.savatteri_euris.models.facts;
 
-import java.util.Date;
-
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -24,9 +22,9 @@ public class Product {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
+
 	private String code;
 	private String name;
 	private Integer baseStock;
-		
+
 }

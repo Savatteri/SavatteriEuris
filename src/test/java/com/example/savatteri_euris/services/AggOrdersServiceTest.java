@@ -102,7 +102,6 @@ public class AggOrdersServiceTest {
     @Test
     void shouldNotInitByOrdersWhenEventCodeIsNull() {
     	
-       	String eventCode = EVENT_CODE;
     	long productId = 1;
     	
     	Orders orders = new Orders();

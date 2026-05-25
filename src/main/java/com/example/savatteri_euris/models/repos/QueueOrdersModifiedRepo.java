@@ -15,11 +15,14 @@ import com.example.savatteri_euris.models.queues.QueueProductModified;
 public interface QueueOrdersModifiedRepo extends JpaRepository<QueueOrdersModified, Long> {
 	public QueueOrdersModified findOneById(Long id);
 	public QueueOrdersModified findFirstByLock(boolean lock);
+	public QueueOrdersModified findOneByEventCode(String eventCode);
+
 	
 	@Transactional
     @Modifying
     @Query("UPDATE QueueOrdersModified q SET q.lock = true WHERE q.lock = false AND q.id = :id")
     int lockQueueItem(@Param("id") Long id);
+	
 	
 
 }

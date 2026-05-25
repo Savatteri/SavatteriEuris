@@ -29,15 +29,6 @@ import lombok.Getter;
 @SpringBootTest
 public class AggProductServiceTest {
 	
-	private static final String CUSTOMER_NAME = "customerName";
-	private static final String CUSTOMER_FAMILY_NAME = "customerFamilyName";
-	private static final String PRODUCT_NAME = "product";
-	private static final String PRODUCT_CODE = "productCode";
-	private static final String EVENT_CODE = "eventCode";
-	private static final int QUANTITY_10 = 10;
-	
-	@Autowired
-	AggProductService aggProductService;
 	@Autowired
 	AggProductRepo aggProductRepo;
 
@@ -46,10 +37,5 @@ public class AggProductServiceTest {
     	aggProductRepo.deleteAll();
     }
     
-    @Test
-    void shouldInitByOrders() {
-    	
-    	
-    }
     
 }

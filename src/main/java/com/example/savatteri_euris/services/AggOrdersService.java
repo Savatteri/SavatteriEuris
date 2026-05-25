@@ -13,9 +13,6 @@ import com.example.savatteri_euris.models.events.Orders;
 import com.example.savatteri_euris.models.facts.Customer;
 import com.example.savatteri_euris.models.facts.Product;
 import com.example.savatteri_euris.models.repos.AggOrdersRepo;
-import com.example.savatteri_euris.models.repos.AggProductRepo;
-import com.example.savatteri_euris.models.repos.CustomerRepo;
-import com.example.savatteri_euris.models.repos.ProductRepo;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;

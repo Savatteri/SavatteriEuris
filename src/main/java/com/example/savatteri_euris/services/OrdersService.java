@@ -23,10 +23,7 @@ import com.example.savatteri_euris.models.facts.Customer;
 import com.example.savatteri_euris.models.facts.Product;
 import com.example.savatteri_euris.models.queues.QueueOrdersModified;
 import com.example.savatteri_euris.models.queues.QueueProductModified;
-import com.example.savatteri_euris.models.repos.CustomerRepo;
-import com.example.savatteri_euris.models.repos.OrderProductRepo;
 import com.example.savatteri_euris.models.repos.OrdersRepo;
-import com.example.savatteri_euris.models.repos.ProductRepo;
 import com.example.savatteri_euris.utils.OrderUtil;
 
 import jakarta.transaction.Transactional;
@@ -63,6 +60,10 @@ public class OrdersService {
 
 	public List<Orders> findByEventCode(String eventCode) {
 		return ordersRepo.findByEventCode(eventCode);
+	}
+
+	public Orders findOneByCustomerId(Long customerId) {
+		return ordersRepo.findOneByCustomerId(customerId);
 	}
 
 	@Transactional
@@ -179,7 +180,7 @@ public class OrdersService {
 		return true;
 	}
 
-	private String generateEventCode(Orders orders) {
+	public String generateEventCode(Orders orders) {
 
 		StringBuilder sb = new StringBuilder();
 
@@ -214,9 +215,9 @@ public class OrdersService {
 
 	@Transactional
 	public boolean setStatusDeleted(String eventCode, long productId) {
-		
+
 		AggOrders aggOrders = getAggOrdersService().findOneByEventCodeAndProductId(eventCode, productId);
-		
+
 		if (aggOrders != null) {
 
 			if (StringUtils.compareIgnoreCase(aggOrders.getStatus(), OrderUtil.STATUS_DELIVERED) == 0)
@@ -229,7 +230,7 @@ public class OrdersService {
 			}
 		}
 		return false;
-		
+
 	}
 
 	private void updateStatus(AggOrders aggOrders, String eventCode, long productId, String status) {

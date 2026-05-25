@@ -1,7 +1,5 @@
 package com.example.savatteri_euris.models.queues;
 
-import java.util.Date;
-
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -21,12 +19,12 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class QueueProductModified extends BaseQueue{
+public class QueueProductModified extends BaseQueue {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
+
 	private String eventCode;
 
 }
