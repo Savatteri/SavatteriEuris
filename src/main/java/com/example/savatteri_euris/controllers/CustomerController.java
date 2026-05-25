@@ -52,7 +52,7 @@ public class CustomerController {
 	private Customer fromDtoToCustomer(CustomerDto customerDto) {
 		Customer customer = new Customer();
 		customer.setBirthDate(customerDto.getBirthDate());
-		customer.setCodiceFiscale(customer.getCodiceFiscale());
+		customer.setCodiceFiscale(customerDto.getCodiceFiscale());
 		customer.setEmail(customerDto.getEmail());
 		customer.setFamilyName(customerDto.getFamilyName());
 		customer.setName(customerDto.getName());
